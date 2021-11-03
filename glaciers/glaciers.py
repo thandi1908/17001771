@@ -20,21 +20,24 @@ class Glacier:
 
         
 class GlacierCollection:
-
     def __init__(self, file_path):
+        file_path = Path(file_path)
         self.file_path = file_path
         self.dict = {}
         # what if the file path isn't a csv? will need to throw as error there 
         # loading the data from the csv file
         with open(self.file_path, newline='') as file: 
             read_file = csv.reader(file)
+            
+            # skip the header of the csv file
+            next(read_file)
             for row in read_file:
                 unit = row[0]
                 name = row[1]
                 idnt = row[2] 
                 lat = row[5]
                 lon = row[6]
-                code = int(row[6]+row[7]+row[8])
+                code = int(row[7]+row[8]+row[9])
                 self.dict[idnt] = Glacier(id,name,unit,lat, lon, code)
         
 
@@ -58,3 +61,6 @@ class GlacierCollection:
 
     def plot_extremes(self, output_path):
         raise NotImplementedError
+
+test = GlacierCollection("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv")
+print(len(test.dict))
