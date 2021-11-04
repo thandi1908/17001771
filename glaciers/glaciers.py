@@ -38,7 +38,7 @@ class GlacierCollection:
                 lat = row[5]
                 lon = row[6]
                 code = int(row[7]+row[8]+row[9])
-                self.dict[idnt] = Glacier(id,name,unit,lat, lon, code)
+                self.dict[idnt] = Glacier(idnt,name,unit,lat, lon, code)
         
 
     def read_mass_balance_data(self, file_path):
