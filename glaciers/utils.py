@@ -25,5 +25,7 @@ def check_csv(file_path, required_keys):
 
         for column in required_keys:
             if column not in check_columns:
-                raise ValueError("csv missing column ", column)
+                raise TypeError("csv missing column ", column)
 
+def search_by_code(code_pattern, full_code): 
+    return None

@@ -100,7 +100,34 @@ class GlacierCollection:
     
     def filter_by_code(self, code_pattern):
         """Return the names of glaciers whose codes match the given pattern."""
-        raise NotImplementedError
+        # is the code  a string? 
+        if isinstance(code_pattern, str):
+
+            #is it all a mixture of numbers and question marks?
+            if all( (char.isdigit() or char =='?') for char in code_pattern):
+
+                # if it's all question marks throw an error
+                if all((char == "?") for char in code_pattern):
+                    raise ValueError("Need atleast one digit in code pattern")
+                
+                # is it all digits? 
+                elif all(char.isdigit() for char in code_pattern):
+                    full_code = True 
+                    code_pattern = int(code_pattern)
+                    # conduct_search
+
+                else: # is it a mixture
+                    full_code = False
+                    # conduct search
+            
+            else: 
+                raise ValueError("code pattern must contain only digits and ?")
+        
+        elif isinstance(code_pattern, int):
+            full_code = True
+            # conduct search
+        else: 
+            raise TypeError("code_pattern should be type int or str")
 
     def sort_by_latest_mass_balance(self, n, reverse):
         """Return the N glaciers with the highest area accumulated in the last measurement."""
