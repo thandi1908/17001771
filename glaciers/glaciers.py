@@ -14,9 +14,11 @@ class Glacier:
         self.mass_dict = {}
 
     def add_mass_balance_measurement(self, year, mass_balance, subregion = False):
-        # does this key exist in the dictionary?
+
+        # have we already got data for this year?
         if year in self.mass_dict:
-            # is it a sub region measurement
+
+            # is it a sub region measurement?
             if subregion == True and self.mass_dict[year]["subregion"] == True:
                 self.mass_dict[year]["mass_balance"] += mass_balance
             
@@ -34,56 +36,59 @@ class Glacier:
 class GlacierCollection:
     def __init__(self, file_path):
 
-        # what if the file path isn't a csv? will need to throw as error there 
-        assert file_path.split(".")[-1] == 'csv', "please input a csv file"
+        self.file_path = Path(file_path)
+        self.glaciers = {}
 
-        file_path = Path(file_path)
-        self.file_path = file_path
-        self.dict = {}
+        # required keys
+        required_keys = ["POLITICAL_UNIT", "NAME",
+         "WGMS_ID", "LATITUDE", "LONGITUDE",
+         "PRIM_CLASSIFIC","FORM", "FRONTAL_CHARS"]
+
+        # check_csv 
+        utils.check_csv(file_path, required_keys)
+
         # loading the data from the csv file
         with open(self.file_path, newline='') as file: 
-            read_file = csv.reader(file)
-            
-            # skip the header of the csv file [check that the headings are in the expected order...] 
-            next(read_file)
+            read_file = csv.DictReader(file)
+
             for row in read_file:
-                unit = row[0]
-                name = row[1]
-                idnt = row[2] 
-                lat = float(row[5])
-                lon = float(row[6])
-                code = int(row[7]+row[8]+row[9])
-                self.dict[idnt] = Glacier(idnt,name,unit,lat, lon, code)
+                unit = row["POLITICAL_UNIT"]
+                name = row["NAME"]
+                idnt = row["WGMS_ID"] 
+                lat = float(row["LATITUDE"])
+                lon = float(row["LONGITUDE"])
+                code = int(row["PRIM_CLASSIFIC"]+row["FORM"]+row["FRONTAL_CHARS"])
+                self.glaciers[idnt] = Glacier(idnt,name,unit,lat, lon, code)
         
 
     def read_mass_balance_data(self, file_path):
-        # check that the user has inputed the right file extension 
-        assert file_path.split(".")[-1] == 'csv', "please input a csv file"
+
+        required_keys = ["WGMS_ID", "LOWER_BOUND", "YEAR", "ANNUAL_BALANCE"]
+        # check_csv 
+        utils.check_csv(file_path, required_keys)
         
         file_path = Path(file_path)
 
         with open(file_path, newline='') as file: 
-            csv_reader = csv.reader(file)
+            csv_reader = csv.DictReader(file)
 
-            # skip the header of the csv file [ check that the headings are as expected...]
-            next(csv_reader)
             for row in csv_reader:
 
-                current_id = row[2]
+                current_id = row["WGMS_ID"]
 
                 # is this a submeasurement
-                if int(row[4]) != 9999:
+                if int(row["LOWER_BOUND"]) != 9999:
                     submeasure = True
                 else:
                     submeasure = False
-                year = row[3]
+                year = row["YEAR"]
 
                 # is there a measurement for this year? 
-                if row[-3] == "": 
+                if row["ANNUAL_BALANCE"] == "": 
                     balance = 0.0 
                 else: 
-                    balance = float(row[-3])
-                self.dict[current_id].add_mass_balance_measurement(year, balance, submeasure)
+                    balance = float(row["ANNUAL_BALANCE"])
+                self.glaciers[current_id].add_mass_balance_measurement(year, balance, submeasure)
                 
                 
             
