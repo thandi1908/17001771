@@ -1,6 +1,7 @@
 from pathlib import Path
 import csv
 import re 
+from math import sin, cos, sqrt, asin, radians
 
 
 def haversine_distance(lat1, lon1, lat2, lon2):
@@ -8,7 +9,22 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
     Latitude and longitude for each point are given in degrees.
     """
-    raise NotImplementedError
+
+    # need to convert the lats and longs into radians
+    lat1, lon1 = radians(lat1), radians(lon1)
+
+    lat2, lon2 = radians
+
+    R = 6371
+
+    sine_term_1 = sin((lat2 - lat1)/2)**2
+
+    cos_term_2 = cos(lat1)*cos(lat2)
+    sin_term_2 = sin((lon2-lon1)/2)**2
+    term_2 = cos_term_2*sin_term_2
+    bracket = sqrt(sine_term_1 + term_2)
+
+    return 2*R*asin(bracket)
 
 def check_csv(file_path, required_keys):
 
@@ -49,6 +65,7 @@ def search_by_code(collection, code_pattern, full_code):
             for key in collection.glaciers:
                 if str(collection.glaciers[key].code)[indx] == code_pattern[indx]:
                     names.append(collection.glaciers[key].name)
+                    print(collection.glaciers[key].code)
         
         # searing for 2 digits provided
         elif len(pos) == 2:
@@ -57,6 +74,7 @@ def search_by_code(collection, code_pattern, full_code):
                 g_code = str(collection.glaciers[key].code)
                 if g_code[indx_0] == code_pattern[indx_0] and g_code[indx_1] == code_pattern[indx_1]:
                     names.append(collection.glaciers[key].name)
+                    # print(g_code)
 
     # return the names of the glaciers with that matching name 
     print("Number of matching glaciers:", len(names))

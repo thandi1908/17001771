@@ -85,7 +85,7 @@ class GlacierCollection:
 
                 # is there a measurement for this year? 
                 if row["ANNUAL_BALANCE"] == "": 
-                    balance = 0.0 
+                    pass # ignore the row
                 else: 
                     balance = float(row["ANNUAL_BALANCE"])
                 self.glaciers[current_id].add_mass_balance_measurement(year, balance, submeasure)
@@ -94,14 +94,29 @@ class GlacierCollection:
             
 
 
-    def find_nearest(self, lat, lon, n):
+    def find_nearest(self, lat, lon, n=5):
         """Get the n glaciers closest to the given coordinates."""
-        raise NotImplementedError
+        distance_dict = {} 
+
+        for key in self.glaciers:
+            temp_glacier = self.glaciers[key]
+            lat2, lon2 = temp_glacier.lat, temp_glacier.lon
+            distance = utils.haversine_distance(lat,lon, lat2, lon2)
+            distance_dict[temp_glacier.name] = distance
+        
+        # sort dict into order of value from least to greatest
+        distance_dict = dict(sorted(distance_dict.items(), key=lambda item: item[1]))
+
+        names = list(distance_dict.keys())[:n]
+        return names
     
     def filter_by_code(self, code_pattern):
         """Return the names of glaciers whose codes match the given pattern."""
         # is the code  a string? 
         if isinstance(code_pattern, str):
+            # make sure the user has inputted the right code length
+            if len(code_pattern) != 3: 
+                raise ValueError("Code pattern must be have 3 chars long")
 
             #is it all a mixture of numbers and question marks?
             if all( (char.isdigit() or char =='?') for char in code_pattern):
@@ -124,16 +139,20 @@ class GlacierCollection:
                     names = utils.search_by_code(self, code_pattern, full_code)
 
             else: 
-                raise ValueError("code pattern must contain only digits and ?")
+                raise ValueError("Code pattern must contain only digits and ?")
         
         elif isinstance(code_pattern, int):
+            # make sure inputted string has the right length
+            if len(str(code_pattern)) != 3: 
+                raise ValueError("Code pattern be 3 digits long")
+            
             full_code = True
             
             # conduct search
             names = utils.search_by_code(self, code_pattern, full_code)
 
         else: 
-            raise TypeError("code_pattern should be type int or str")
+            raise TypeError("Code pattern should be type int or str")
 
         return names
 
