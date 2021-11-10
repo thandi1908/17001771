@@ -11,23 +11,23 @@ class Glacier:
         self.lat = lat 
         self.lon = lon 
         self.code = code
-        self.mass_dict = {}
+        self.mass_balance = {}
 
     def add_mass_balance_measurement(self, year, mass_balance, subregion = False):
 
         # have we already got data for this year?
-        if year in self.mass_dict:
+        if year in self.mass_balance:
 
             # is it a sub region measurement?
-            if subregion == True and self.mass_dict[year]["subregion"] == True:
-                self.mass_dict[year]["mass_balance"] += mass_balance
+            if subregion == True and self.mass_balance[year]["subregion"] == True:
+                self.mass_balance[year]["mass_balance"] += mass_balance
             
             # if it's not a subregion measurement but the previous was skip it
-            elif subregion == False and self.mass_dict[year]["subregion"] ==True: 
+            elif subregion == False and self.mass_balance[year]["subregion"] ==True: 
                 pass 
 
         else: # new year measurement
-            self.mass_dict[year] = {"mass_balance":mass_balance, "subregion": subregion}
+            self.mass_balance[year] = {"mass_balance":mass_balance, "subregion": subregion}
 
     def plot_mass_balance(self, output_path):
         raise NotImplementedError
@@ -88,7 +88,7 @@ class GlacierCollection:
                     pass # ignore the row
                 else: 
                     balance = float(row["ANNUAL_BALANCE"])
-                self.glaciers[current_id].add_mass_balance_measurement(year, balance, submeasure)
+                    self.glaciers[current_id].add_mass_balance_measurement(year, balance, submeasure)
                 
                 
             
@@ -96,6 +96,7 @@ class GlacierCollection:
 
     def find_nearest(self, lat, lon, n=5):
         """Get the n glaciers closest to the given coordinates."""
+        # TODO: Validate inputs
         distance_dict = {} 
 
         for key in self.glaciers:
@@ -157,9 +158,40 @@ class GlacierCollection:
         return names
 
 
-    def sort_by_latest_mass_balance(self, n, reverse):
+    def sort_by_latest_mass_balance(self, n=5, reverse=False):
         """Return the N glaciers with the highest area accumulated in the last measurement."""
-        raise NotImplementedError
+        
+        # create glacier dictionary with only latest mass_balance measurement
+        smaller_dict = {}
+        
+        for glacier in self.glaciers:
+            glac = self.glaciers[glacier]
+            
+            #sort the years from oldest to most recent
+            year_order = sorted(glac.mass_balance.keys(), key=lambda key: key)
+            
+            if len(year_order) != 0: # making sure the glacier has some measurements
+                latest_year = year_order[-1]
+                smaller_dict[glacier] = glac.mass_balance[latest_year]["mass_balance"]
+            else: 
+                continue
+
+        # order the dictionary in order of smallest to largest change 
+        smaller_dict = dict(sorted(smaller_dict.items(), key=lambda item: item[1]))
+
+        output_list = []
+        keys = list(smaller_dict.keys())
+        if not reverse:
+            # get a list of keys 
+            keys = keys[-n:]
+            for key in keys: 
+                output_list.append(self.glaciers[key])
+        else: 
+            keys = keys[:n]
+            for key in keys:
+                output_list.append(self.glaciers[key])
+        print(output_list)
+        return output_list
 
     def summary(self):
         raise NotImplementedError
@@ -169,3 +201,4 @@ class GlacierCollection:
 
 test = GlacierCollection("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv")
 test.read_mass_balance_data("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-EE.csv")
+test.sort_by_latest_mass_balance(n=1)

@@ -10,10 +10,12 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     Latitude and longitude for each point are given in degrees.
     """
 
+    # TODO: Validate inputs
+
     # need to convert the lats and longs into radians
     lat1, lon1 = radians(lat1), radians(lon1)
 
-    lat2, lon2 = radians
+    lat2, lon2 = radians(lat2), radians(lon2)
 
     R = 6371
 
