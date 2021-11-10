@@ -115,19 +115,28 @@ class GlacierCollection:
                     full_code = True 
                     code_pattern = int(code_pattern)
                     # conduct_search
+                    names = utils.search_by_code(self, code_pattern, full_code)
 
                 else: # is it a mixture
                     full_code = False
+                    
                     # conduct search
-            
+                    names = utils.search_by_code(self, code_pattern, full_code)
+
             else: 
                 raise ValueError("code pattern must contain only digits and ?")
         
         elif isinstance(code_pattern, int):
             full_code = True
+            
             # conduct search
+            names = utils.search_by_code(self, code_pattern, full_code)
+
         else: 
             raise TypeError("code_pattern should be type int or str")
+
+        return names
+
 
     def sort_by_latest_mass_balance(self, n, reverse):
         """Return the N glaciers with the highest area accumulated in the last measurement."""
