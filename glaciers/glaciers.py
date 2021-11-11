@@ -1,6 +1,9 @@
 from pathlib import Path
 import utils 
 import csv 
+import sys
+
+import matplotlib.pyplot as plt
 
 
 class Glacier:
@@ -24,12 +27,22 @@ class Glacier:
             
             # if it's not a subregion measurement but the previous was skip it
             elif subregion == False and self.mass_balance[year]["subregion"] ==True: 
-                pass 
+                self.mass_balance[year]["mass_balance"] += 0 
 
         else: # new year measurement
             self.mass_balance[year] = {"mass_balance":mass_balance, "subregion": subregion}
 
     def plot_mass_balance(self, output_path):
+        x_values = []
+        y_values = []
+        if self.mass_balance: # make sure that the glacier has mass balance measurements
+            for year in self.mass_balance:
+                x_values.append(int(year))
+                y_values.append(self.mass_balance[year]["mass_balance"])
+        
+        plt.figure()
+        plt.plot(x_values, y_values)
+                
         raise NotImplementedError
 
         
@@ -85,7 +98,7 @@ class GlacierCollection:
 
                 # is there a measurement for this year? 
                 if row["ANNUAL_BALANCE"] == "": 
-                    pass # ignore the row
+                    continue # ignore the row
                 else: 
                     balance = float(row["ANNUAL_BALANCE"])
                     self.glaciers[current_id].add_mass_balance_measurement(year, balance, submeasure)
@@ -190,11 +203,49 @@ class GlacierCollection:
             keys = keys[:n]
             for key in keys:
                 output_list.append(self.glaciers[key])
-        print(output_list)
+
         return output_list
 
     def summary(self):
-        raise NotImplementedError
+        # print the number of glaciers in collection
+        print("This collection has", len(self.glaciers), "glaciers")
+
+        # tracking variables 
+        earliest_year = sys.maxsize
+        glacier_w_measure = 0 
+        shrink = 0 
+        grow = 0 
+
+        for glacier in self.glaciers:
+            glac = self.glaciers[glacier]
+
+            # find the earliest measurement
+            year_order = sorted(glac.mass_balance.keys(), key=lambda key: key)
+
+            if len(year_order) != 0:
+                year  = int(year_order[0]) 
+                if int(year) <= earliest_year:
+                    earliest_year = year
+
+                # find out if the last measurement saw the glacier shrink
+                latest_year = year_order[-1]
+                mass_measurement = glac.mass_balance[latest_year]["mass_balance"]
+                if mass_measurement < 0: 
+                    shrink += 1
+                else: 
+                    grow += 1
+                
+                glacier_w_measure += 1
+            else: 
+                continue
+        
+        shrink_perc = int(round(100*shrink/glacier_w_measure))
+        # grow_perc = int(round(100*grow/glacier_w_measure))
+        print("The earliest measurement was in", earliest_year)
+        print(str(shrink_perc)+"% of glaciers shrunk in their last measurement")
+        # print(str(grow_perc)+"% of glaciers grew in their last measurement")
+
+
 
     def plot_extremes(self, output_path):
         raise NotImplementedError
@@ -202,3 +253,4 @@ class GlacierCollection:
 test = GlacierCollection("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv")
 test.read_mass_balance_data("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-EE.csv")
 test.sort_by_latest_mass_balance(n=1)
+test.summary()
