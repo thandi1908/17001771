@@ -41,9 +41,12 @@ class Glacier:
                 y_values.append(self.mass_balance[year]["mass_balance"])
         
         plt.figure()
-        plt.plot(x_values, y_values)
-                
-        raise NotImplementedError
+        plt.plot(x_values, y_values, '.')
+        plt.ylabel("Mass Balance [mm.w.e]")
+        plt.xlabel("Year")
+        plt.title(str(self.name)+"Mass Balance Measurements Vs Years")
+
+        plt.savefig(output_path+str(self.name)+"_mass_balance_plot.png")
 
         
 class GlacierCollection:
@@ -248,9 +251,43 @@ class GlacierCollection:
 
 
     def plot_extremes(self, output_path):
-        raise NotImplementedError
+        
+        # tracking variables
+        most_shrink = sys.maxsize
+        shrink_year = 0 
+        most_grow = -sys.maxsize
+        grow_year = 0 
+
+        for glacier in self.glaciers:
+            glac = self.glaciers[glacier]
+            
+            #sort the years from oldest to most recent
+            year_order = sorted(glac.mass_balance.keys(), key=lambda key: key)
+            
+            if len(year_order) != 0: # making sure the glacier has some measurements
+                latest_year = year_order[-1]
+                mass_measure = glac.mass_balance[latest_year]["mass_balance"]
+                
+                if mass_measure < 0 and mass_measure < most_shrink:
+                    most_shrink = mass_measure
+                    shrink_year = int(latest_year)
+                
+                elif mass_measure > 0 and mass_measure > most_grow:
+                    most_grow = mass_measure
+                    grow_year = int(latest_year)
+
+        # plotting
+        plt.figure()
+        plt.plot([shrink_year, grow_year], [most_shrink, most_grow], '.')
+        plt.xlabel("Year")
+        plt.ylabel("Mass Balance [mm.w.e]")
+        plt.title("Glacier Collection Exteremes Plot")
+
+        plt.savefig(output_path+"extremes_plot.png")
+
 
 test = GlacierCollection("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv")
 test.read_mass_balance_data("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-EE.csv")
 test.sort_by_latest_mass_balance(n=1)
 test.summary()
+test.plot_extremes("")
