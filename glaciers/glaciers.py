@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*--v
 from pathlib import Path
 import utils 
 import csv 
@@ -35,18 +36,19 @@ class Glacier:
     def plot_mass_balance(self, output_path):
         x_values = []
         y_values = []
-        if self.mass_balance: # make sure that the glacier has mass balance measurements
+        # make sure that the glacier has mass balance measurements
+        if self.mass_balance: 
             for year in self.mass_balance:
                 x_values.append(int(year))
                 y_values.append(self.mass_balance[year]["mass_balance"])
         
-        plt.figure()
-        plt.plot(x_values, y_values, '.')
-        plt.ylabel("Mass Balance [mm.w.e]")
-        plt.xlabel("Year")
-        plt.title(str(self.name)+"Mass Balance Measurements Vs Years")
+            plt.figure()
+            plt.plot(x_values, y_values, '.')
+            plt.ylabel("Mass Balance [mm.w.e]")
+            plt.xlabel("Year")
+            plt.title(str(self.name)+"Mass Balance Measurements Vs Years")
 
-        plt.savefig(output_path+str(self.name)+"_mass_balance_plot.png")
+            plt.savefig(output_path+str(self.name)+"_mass_balance_plot.png")
 
         
 class GlacierCollection:
@@ -254,9 +256,9 @@ class GlacierCollection:
         
         # tracking variables
         most_shrink = sys.maxsize
-        shrink_year = 0 
+        shrink_id = None
         most_grow = -sys.maxsize
-        grow_year = 0 
+        grow_id = None
 
         for glacier in self.glaciers:
             glac = self.glaciers[glacier]
@@ -270,11 +272,11 @@ class GlacierCollection:
                 
                 if mass_measure < 0 and mass_measure < most_shrink:
                     most_shrink = mass_measure
-                    shrink_year = int(latest_year)
+                    shrink_id = glacier
                 
                 elif mass_measure > 0 and mass_measure > most_grow:
                     most_grow = mass_measure
-                    grow_year = int(latest_year)
+                    grow_id = glacier
 
         # plotting
         plt.figure()
