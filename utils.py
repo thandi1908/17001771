@@ -33,10 +33,8 @@ def check_csv(file_path, required_keys):
     '''
      DOC STRING 
     '''
-    
-    assert file_path.split(".")[-1] == 'csv', "please input a csv file"
-
-    file_path = Path(file_path)
+    # change the path object to string
+    assert file_path.toString().split(".")[-1] == 'csv', "please input a csv file"
 
     with open(file_path, newline='') as file: 
         read_file = csv.DictReader(file)

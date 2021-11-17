@@ -54,7 +54,7 @@ class Glacier:
 class GlacierCollection:
     def __init__(self, file_path):
 
-        self.file_path = Path(file_path)
+        self.file_path = file_path
         self.glaciers = {}
 
         # required keys
@@ -257,7 +257,7 @@ class GlacierCollection:
         # tracking variables
         most_shrink = sys.maxsize
         shrink_id = None
-        most_grow = -sys.maxsize
+        most_grow = - sys.maxsize
         grow_id = None
 
         for glacier in self.glaciers:
@@ -278,14 +278,39 @@ class GlacierCollection:
                     most_grow = mass_measure
                     grow_id = glacier
 
+        x_val_1 , x_val_2 = [], []
+        y_val_1, y_val_2  = [], []
+
+        glac_1 = self.glaciers[shrink_id]
+        glac_2 = self.glaciers[grow_id]
+        for year in glac_1.mass_balance:
+                x_val_1.append(int(year))
+                y_val_1.append(glac_1.mass_balance[year]["mass_balance"])
+        
+        for year in glac_2.mass_balance:
+                x_val_2.append(int(year))
+                y_val_2.append(glac_2.mass_balance[year]["mass_balance"])
+                # print(y_val_2)
+
         # plotting
         plt.figure()
-        plt.plot([shrink_year, grow_year], [most_shrink, most_grow], '.')
+        plt.plot(x_val_1, y_val_1, color = "crimson", label = "Most Shrinkage")
+        plt.plot(x_val_2, y_val_2, color = "lime", label = "Most Growth")
         plt.xlabel("Year")
         plt.ylabel("Mass Balance [mm.w.e]")
         plt.title("Glacier Collection Exteremes Plot")
+        plt.legend()
 
         plt.savefig(output_path+"extremes_plot.png")
+
+
+test = GlacierCollection("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv")
+test.read_mass_balance_data("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-EE.csv")
+test.sort_by_latest_mass_balance(n=1)
+print(test.find_nearest(-29.98300, -69.64200))
+test.summary()
+test.plot_extremes("")
+test.glaciers["04532"].plot_mass_balance("")
 
 
 test = GlacierCollection("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv")
