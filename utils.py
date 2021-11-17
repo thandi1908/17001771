@@ -34,7 +34,9 @@ def check_csv(file_path, required_keys):
      DOC STRING 
     '''
     # change the path object to string
-    assert file_path.toString().split(".")[-1] == 'csv', "please input a csv file"
+    full_path = file_path.absolute()
+    str_path = full_path.as_posix()
+    assert str_path.split(".")[-1] == 'csv', "please input a csv file"
 
     with open(file_path, newline='') as file: 
         read_file = csv.DictReader(file)

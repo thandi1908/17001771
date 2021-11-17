@@ -304,17 +304,11 @@ class GlacierCollection:
         plt.savefig(output_path+"extremes_plot.png")
 
 
-test = GlacierCollection("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv")
-test.read_mass_balance_data("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-EE.csv")
-test.sort_by_latest_mass_balance(n=1)
-print(test.find_nearest(-29.98300, -69.64200))
-test.summary()
-test.plot_extremes("")
-test.glaciers["04532"].plot_mass_balance("")
+# test = GlacierCollection(Path("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv"))
+# test.read_mass_balance_data(Path("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-EE.csv"))
+# test.sort_by_latest_mass_balance(n=1)
+# print(test.find_nearest(-29.98300, -69.64200))
+# test.summary()
+# test.plot_extremes("")
+# test.glaciers["04532"].plot_mass_balance("")
 
-
-test = GlacierCollection("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv")
-test.read_mass_balance_data("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-EE.csv")
-test.sort_by_latest_mass_balance(n=1)
-test.summary()
-test.plot_extremes("")
