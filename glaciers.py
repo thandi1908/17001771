@@ -9,6 +9,27 @@ import matplotlib.pyplot as plt
 
 class Glacier:
     def __init__(self, glacier_id, name, unit, lat, lon, code):
+        # validate argument inputs
+        if len(glacier_id) !=5:
+            id_length = len(glacier_id) 
+            raise ValueError("Expected glacier length of 5 but", id_length, "was given")
+       
+        if name is not str: 
+            raise TypeError("Glacier Name should be string")
+        
+        if unit is not str:
+            raise TypeError("Glacier political unit should be a string")
+
+        elif not unit.isupper() or unit !="99" or len(unit) !=2: 
+            raise ValueError("Glacier policitcal unit should be a 2 character string of uppercase letters or 99")
+        
+        if lat < -90 or lat > 90: 
+            raise ValueError("Latitude should be in range [-90, 90], but", lat, " was given")
+
+        if lon < -180 or lon > 180: 
+            raise ValueError("Longitude should be in range [-180, 180] but", lon, " was given") 
+
+        
         self.glacier_id = glacier_id
         self.name = name
         self.unit = unit
@@ -48,7 +69,9 @@ class Glacier:
             plt.xlabel("Year")
             plt.title(str(self.name)+"Mass Balance Measurements Vs Years")
 
-            plt.savefig(output_path+str(self.name)+"_mass_balance_plot.png")
+            full_path = output_path.absolute()
+            str_path = full_path.as_posix()
+            plt.savefig(Path(str_path+str(self.name)+"_mass_balance_plot.png"))
 
         
 class GlacierCollection:
@@ -72,7 +95,8 @@ class GlacierCollection:
             for row in read_file:
                 unit = row["POLITICAL_UNIT"]
                 name = row["NAME"]
-                idnt = row["WGMS_ID"] 
+
+                idnt = row["WGMS_ID"]
                 lat = float(row["LATITUDE"])
                 lon = float(row["LONGITUDE"])
                 code = int(row["PRIM_CLASSIFIC"]+row["FORM"]+row["FRONTAL_CHARS"])
@@ -301,14 +325,16 @@ class GlacierCollection:
         plt.title("Glacier Collection Exteremes Plot")
         plt.legend()
 
-        plt.savefig(output_path+"extremes_plot.png")
+        full_path = output_path.absolute()
+        str_path = full_path.as_posix()
+        plt.savefig(Path(str_path+"extremes_plot.png"))
 
 
-# test = GlacierCollection(Path("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv"))
-# test.read_mass_balance_data(Path("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-EE.csv"))
-# test.sort_by_latest_mass_balance(n=1)
-# print(test.find_nearest(-29.98300, -69.64200))
-# test.summary()
-# test.plot_extremes("")
-# test.glaciers["04532"].plot_mass_balance("")
+test = GlacierCollection(Path("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv"))
+test.read_mass_balance_data(Path("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-EE.csv"))
+test.sort_by_latest_mass_balance(n=1)
+print(test.find_nearest(-29.98300, -69.64200))
+test.summary()
+test.plot_extremes(Path(""))
+test.glaciers["04532"].plot_mass_balance(Path(''))
 
