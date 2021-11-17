@@ -10,8 +10,16 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     Latitude and longitude for each point are given in degrees.
     """
 
-    # TODO: Validate inputs
+    if lat1 < -90 or lat1 > 90: 
+        raise ValueError("Latitude should be in range [-90, 90], but", lat1, " was given")
+    elif lat2< -90 or lat2 > 90: 
+        raise ValueError("Latitude should be in range [-90, 90], but", lat2, " was given")
 
+    if lon1 < -180 or lon1 > 180: 
+        raise ValueError("Longitude should be in range [-180, 180] but", lon1, " was given") 
+    elif lon2 < -180 or lon2 > 180: 
+        raise ValueError("Longitude should be in range [-180, 180] but", lon2, " was given") 
+    
     # need to convert the lats and longs into radians
     lat1, lon1 = radians(lat1), radians(lon1)
 
@@ -33,6 +41,9 @@ def check_csv(file_path, required_keys):
     '''
      DOC STRING 
     '''
+    if not isinstance(file_path, Path): 
+        raise TypeError("output path should be a Path Object")
+   
     # change the path object to string
     full_path = file_path.absolute()
     str_path = full_path.as_posix()

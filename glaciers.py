@@ -6,6 +6,8 @@ import sys
 
 import matplotlib.pyplot as plt
 
+import datetime
+
 
 class Glacier:
     def __init__(self, glacier_id, name, unit, lat, lon, code):
@@ -14,10 +16,10 @@ class Glacier:
             id_length = len(glacier_id) 
             raise ValueError("Expected glacier length of 5 but", id_length, "was given")
        
-        if name is not str: 
+        if not isinstance(name, str): 
             raise TypeError("Glacier Name should be string")
         
-        if unit is not str:
+        if not isinstance(unit, str):
             raise TypeError("Glacier political unit should be a string")
 
         elif not unit.isupper() or unit !="99" or len(unit) !=2: 
@@ -28,6 +30,10 @@ class Glacier:
 
         if lon < -180 or lon > 180: 
             raise ValueError("Longitude should be in range [-180, 180] but", lon, " was given") 
+        if not len(str(code)) != 3: 
+            raise ValueError("Code should be of length 3")
+        if not isinstance(code, int): 
+            raise TypeError("Code should be an int")
 
         
         self.glacier_id = glacier_id
@@ -39,6 +45,13 @@ class Glacier:
         self.mass_balance = {}
 
     def add_mass_balance_measurement(self, year, mass_balance, subregion = False):
+        # validating arguments
+        current_year = datetime.datetime.now().year
+
+        if int(year) > current_year: 
+            raise ValueError(str(int)+" is before the current year of "+str(current_year))
+
+        #TODO: validate mass balance measurements
 
         # have we already got data for this year?
         if year in self.mass_balance:
@@ -55,6 +68,10 @@ class Glacier:
             self.mass_balance[year] = {"mass_balance":mass_balance, "subregion": subregion}
 
     def plot_mass_balance(self, output_path):
+        #validate path
+        if not isinstance(output_path, Path): 
+            raise TypeError("output path should be a Path Object")
+
         x_values = []
         y_values = []
         # make sure that the glacier has mass balance measurements
@@ -76,6 +93,8 @@ class Glacier:
         
 class GlacierCollection:
     def __init__(self, file_path):
+        if not isinstance(file_path, Path): 
+            raise TypeError("output path should be a Path Object")
 
         self.file_path = file_path
         self.glaciers = {}
@@ -105,6 +124,9 @@ class GlacierCollection:
 
     def read_mass_balance_data(self, file_path):
 
+        if not isinstance(file_path, Path): 
+            raise TypeError("output path should be a Path Object")
+
         required_keys = ["WGMS_ID", "LOWER_BOUND", "YEAR", "ANNUAL_BALANCE"]
         # check_csv 
         utils.check_csv(file_path, required_keys)
@@ -117,6 +139,9 @@ class GlacierCollection:
             for row in csv_reader:
 
                 current_id = row["WGMS_ID"]
+
+                if not current_id in self.glaciers: 
+                    raise ValueError("Glacier "+current_id+" is not in collection")
 
                 # is this a submeasurement
                 if int(row["LOWER_BOUND"]) != 9999:
@@ -138,7 +163,13 @@ class GlacierCollection:
 
     def find_nearest(self, lat, lon, n=5):
         """Get the n glaciers closest to the given coordinates."""
-        # TODO: Validate inputs
+
+        if lat < -90 or lat > 90: 
+            raise ValueError("Latitude should be in range [-90, 90], but", lat, " was given")
+
+        if lon < -180 or lon > 180: 
+            raise ValueError("Longitude should be in range [-180, 180] but", lon, " was given") 
+
         distance_dict = {} 
 
         for key in self.glaciers:
@@ -277,6 +308,9 @@ class GlacierCollection:
 
 
     def plot_extremes(self, output_path):
+
+        if not isinstance(output_path, Path): 
+            raise TypeError("output path should be a Path Object")
         
         # tracking variables
         most_shrink = sys.maxsize
@@ -328,13 +362,4 @@ class GlacierCollection:
         full_path = output_path.absolute()
         str_path = full_path.as_posix()
         plt.savefig(Path(str_path+"extremes_plot.png"))
-
-
-test = GlacierCollection(Path("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-A.csv"))
-test.read_mass_balance_data(Path("/Users/thandikiremadula/Desktop/17001771/glaciers/sheet-EE.csv"))
-test.sort_by_latest_mass_balance(n=1)
-print(test.find_nearest(-29.98300, -69.64200))
-test.summary()
-test.plot_extremes(Path(""))
-test.glaciers["04532"].plot_mass_balance(Path(''))
 
