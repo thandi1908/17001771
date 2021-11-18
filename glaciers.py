@@ -206,6 +206,8 @@ class GlacierCollection:
                 
                 # is it all digits? 
                 elif all(char.isdigit() for char in code_pattern):
+                    if int(code_pattern) == 0: 
+                        raise ValueError("Code Pattern must be non-zero")
                     full_code = True 
                     code_pattern = int(code_pattern)
                     # conduct_search
@@ -222,7 +224,9 @@ class GlacierCollection:
         
         elif isinstance(code_pattern, int):
             # make sure inputted string has the right length
-            if len(str(code_pattern)) != 3: 
+            if code_pattern == 0:
+                raise ValueError("Code pattern must be non-zero")
+            elif len(str(code_pattern)) != 3: 
                 raise ValueError("Code pattern be 3 digits long")
             
             full_code = True
