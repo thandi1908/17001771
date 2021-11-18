@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*--v
 from pathlib import Path
+
+from _pytest.python_api import raises
 import utils 
 import csv 
 import sys
@@ -99,7 +101,7 @@ class Glacier:
 class GlacierCollection:
     def __init__(self, file_path):
         if not isinstance(file_path, Path): 
-            raise TypeError("output path should be a Path Object")
+            raise TypeError("File path should be a Path Object")
 
         self.file_path = file_path
         self.glaciers = {}
@@ -128,6 +130,7 @@ class GlacierCollection:
         
 
     def read_mass_balance_data(self, file_path):
+        self.count = 0
 
         if not isinstance(file_path, Path): 
             raise TypeError("output path should be a Path Object")
@@ -161,6 +164,7 @@ class GlacierCollection:
                 else: 
                     balance = float(row["ANNUAL_BALANCE"])
                     self.glaciers[current_id].add_mass_balance_measurement(year, balance, submeasure)
+                    self.count += 1
                 
                 
             
@@ -168,6 +172,7 @@ class GlacierCollection:
 
     def find_nearest(self, lat, lon, n=5):
         """Get the n glaciers closest to the given coordinates."""
+        # TODO: validate n
 
         if lat < -90 or lat > 90: 
             raise ValueError("Latitude should be in range [-90, 90], but", lat, " was given")
@@ -242,6 +247,14 @@ class GlacierCollection:
 
     def sort_by_latest_mass_balance(self, n=5, reverse=False):
         """Return the N glaciers with the highest area accumulated in the last measurement."""
+        if n == 0: 
+            return []
+        if not isinstance(n, int): 
+            raise TypeError("n should be of type int")
+        elif n < 0: 
+            raise ValueError("n should be a positive integer")
+        elif n > self.count:
+            raise ValueError(str(n)+" > glaciers with mass balance measurements, max is "+str(self.count))
         
         # create glacier dictionary with only latest mass_balance measurement
         smaller_dict = {}
@@ -263,16 +276,17 @@ class GlacierCollection:
 
         output_list = []
         keys = list(smaller_dict.keys())
-        if not reverse:
+        
+        if reverse == False:
             # get a list of keys 
-            keys = keys[-n:]
+            keys = list(reversed(keys))[:n]
             for key in keys: 
                 output_list.append(self.glaciers[key])
-        else: 
+        
+        elif reverse == True:
             keys = keys[:n]
             for key in keys:
                 output_list.append(self.glaciers[key])
-
         return output_list
 
     def summary(self):

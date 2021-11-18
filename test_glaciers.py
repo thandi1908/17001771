@@ -71,9 +71,36 @@ def test_filter_by_code_neg(err, code_pattern, full_glac_col):
 def test_filter_by_code_postive(code_pattern, expected_result,full_glac_col):
     assert full_glac_col.filter_by_code(code_pattern) == expected_result
 
+# test sort_by_latest_mass_balance (positive)
+@pytest.mark.parametrize("n,reverse,expected_result",
+ [
+     (5, True, ["BROWN SUPERIOR","CONCONTA NORTE", "AGUA NEGRA", "SHAUNE GARANG", "DE LOS TRES"]),
+     (1, False, ["DE LOS TRES"]),
+      (5, False, ['DE LOS TRES', 'SHAUNE GARANG', 'AGUA NEGRA', 'CONCONTA NORTE', 'BROWN SUPERIOR'] )
+ ])
+def test_sort_by_lastest_mass_balance_pos(n, reverse, expected_result,glaciercol):
+    collection = glaciercol
+    collection.read_mass_balance_data(Path("sheet-test.csv"))
+    sort = collection.sort_by_latest_mass_balance(n,reverse)
+    sort_names = [i.name for i in sort]
+    print(sort_names)
 
+    assert sort_names == expected_result
 
-# test sort_by_latest_mass_balance
+# test sort by latest mass balance (Negative)
+@pytest.mark.parametrize("n,reverse,err",
+[
+    (-1, False, ValueError),
+     ("40", False, TypeError ),
+     (500, False, ValueError)
+])
+def test_sort_by_latest_mass_balance_neg(n, reverse, err, glaciercol):
+    collection = glaciercol
+    collection.read_mass_balance_data(Path("sheet-test.csv"))
+
+    with pytest.raises(err):
+        sort = collection.sort_by_latest_mass_balance(n,reverse)
+
 
 # test summary
 
