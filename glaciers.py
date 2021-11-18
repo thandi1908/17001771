@@ -22,15 +22,20 @@ class Glacier:
         if not isinstance(unit, str):
             raise TypeError("Glacier political unit should be a string")
 
-        elif not unit.isupper() or unit !="99" or len(unit) !=2: 
-            raise ValueError("Glacier policitcal unit should be a 2 character string of uppercase letters or 99")
+        elif len(unit) != 2: 
+            raise ValueError("Glacier political unit should have length 2")
+
+        elif not unit.isupper():
+            # check that its not the special case
+            if unit !="99":
+                raise ValueError("Glacier policitcal unit should be a 2 character string of uppercase letters or 99")
         
         if lat < -90 or lat > 90: 
             raise ValueError("Latitude should be in range [-90, 90], but", lat, " was given")
 
         if lon < -180 or lon > 180: 
             raise ValueError("Longitude should be in range [-180, 180] but", lon, " was given") 
-        if not len(str(code)) != 3: 
+        if len(str(code)) != 3: 
             raise ValueError("Code should be of length 3")
         if not isinstance(code, int): 
             raise TypeError("Code should be an int")
