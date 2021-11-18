@@ -39,6 +39,6 @@ Thumbs.db
 
 # file outputs #
 ################
-.png
-.jpeg
+*.png
+*.jpeg
 __pycache__

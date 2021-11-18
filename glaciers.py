@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 
 import datetime
 
+from warnings import warn
+
 
 class Glacier:
     def __init__(self, glacier_id, name, unit, lat, lon, code):
@@ -92,10 +94,25 @@ class Glacier:
             plt.ylabel("Mass Balance [mm.w.e]")
             plt.xlabel("Year")
             plt.title(str(self.name)+"Mass Balance Measurements Vs Years")
+            
+            plt.savefig(output_path)
+
+            assert output_path.is_file()
+        
+        else:
+            warn("This Glacier has no mass balance measurements")
+            plt.figure()
+            plt.plot(x_values, y_values, '.')
+            plt.ylabel("Mass Balance [mm.w.e]")
+            plt.xlabel("Year")
+            plt.title(str(self.name)+"Mass Balance Measurements Vs Years")
 
             full_path = output_path.absolute()
             str_path = full_path.as_posix()
             plt.savefig(output_path)
+
+            assert output_path.is_file()
+
 
         
 class GlacierCollection:
@@ -172,7 +189,17 @@ class GlacierCollection:
 
     def find_nearest(self, lat, lon, n=5):
         """Get the n glaciers closest to the given coordinates."""
-        # TODO: validate n
+        if not isinstance(n, int):
+            raise TypeError("n should be an int not ", type(n))
+        if n < 0:
+            raise ValueError("n should be a positive integer")
+
+        if n > len(self.glaciers):
+            raise ValueError("There are only ", len(self.glaciers), "glaciers in collection")
+        
+        assert isinstance(lat,(int,float)), "Latitude should be of type int"
+
+        assert isinstance(lon, (int,float)), "Longitude should be of type int"
 
         if lat < -90 or lat > 90: 
             raise ValueError("Latitude should be in range [-90, 90], but", lat, " was given")

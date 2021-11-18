@@ -76,7 +76,9 @@ def test_filter_by_code_postive(code_pattern, expected_result,full_glac_col):
  [
      (5, True, ["BROWN SUPERIOR","CONCONTA NORTE", "AGUA NEGRA", "SHAUNE GARANG", "DE LOS TRES"]),
      (1, False, ["DE LOS TRES"]),
-      (5, False, ['DE LOS TRES', 'SHAUNE GARANG', 'AGUA NEGRA', 'CONCONTA NORTE', 'BROWN SUPERIOR'] )
+      (5, False, ['DE LOS TRES', 'SHAUNE GARANG', 'AGUA NEGRA', 'CONCONTA NORTE', 'BROWN SUPERIOR'] ),
+      (2, True, ["BROWN SUPERIOR","CONCONTA NORTE"])
+
  ])
 def test_sort_by_lastest_mass_balance_pos(n, reverse, expected_result,glaciercol):
     collection = glaciercol
@@ -101,11 +103,26 @@ def test_sort_by_latest_mass_balance_neg(n, reverse, err, glaciercol):
     with pytest.raises(err):
         sort = collection.sort_by_latest_mass_balance(n,reverse)
 
+# test find nearest (Negative)
+@pytest.mark.parametrize("err,lat,lon,n",
+ [
+    (ValueError, -90.6,-90, 5 ),
+    (ValueError, -90,200,5),
+    (ValueError,-90, 90, 20000000),
+    (TypeError, -90, 100, "12"),
+    (AssertionError, "-90", 100, 12),
+    (AssertionError,-90, "130", 12),
+    (ValueError, -90, - 90, -90)
+ ])
+def test_find_nearest_neg(err,lat,lon,n,glaciercol):
+    with pytest.raises(err):
+        glaciercol.find_nearest(lat,lon,n)
 
-# test summary
-def test_summary(full_glac_col):
-        
 
+
+# test find nearest (Positive)
+def test_find_nearest_pos(glaciercol):
+    assert glaciercol.find_nearest(-30.16490,-69.80940, n=1) == ["AGUA NEGRA"]
 
 # test glacier collection object
 def test_GlacierCollect(file_path = ""):
