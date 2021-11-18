@@ -95,7 +95,7 @@ class Glacier:
 
             full_path = output_path.absolute()
             str_path = full_path.as_posix()
-            plt.savefig(Path(str_path+str(self.name)+"_mass_balance_plot.png"))
+            plt.savefig(output_path)
 
         
 class GlacierCollection:
@@ -382,7 +382,5 @@ class GlacierCollection:
         plt.title("Glacier Collection Exteremes Plot")
         plt.legend()
 
-        full_path = output_path.absolute()
-        str_path = full_path.as_posix()
-        plt.savefig(Path(str_path+"extremes_plot.png"))
+        plt.savefig(output_path)
 
