@@ -2,6 +2,7 @@ from pathlib import Path
 import csv
 import re 
 from math import sin, cos, sqrt, asin, radians
+import matplotlib.pyplot as plt 
 
 
 def haversine_distance(lat1, lon1, lat2, lon2):
@@ -27,7 +28,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     bracket = sqrt(sine_term_1 + term_2)
 
     return 2*R*asin(bracket)
-    
+
 
 def check_csv(file_path, required_keys):
 
@@ -95,6 +96,19 @@ def search_by_code(collection, code_pattern, full_code):
     # return the names of the glaciers with that matching name 
     print("Number of matching glaciers:", len(names))
     return names
+
+def mass_balance_plot(glacier, x, y, output_path):
+    plt.figure()
+    plt.plot(x , y, '+', color = 'blue')
+    plt.plot(x,y, '--', color ="gray")
+    plt.ylabel("Mass Balance [mm.w.e]")
+    plt.xlabel("Year")
+    plt.title(str(glacier.name)+" Mass Balance Measurements \n Vs Years")
+
+    plt.savefig(output_path)
+
+    assert output_path.is_file()
+
 
 
 ######################### VALIDATION HELPER FUNCTIONS ##########################

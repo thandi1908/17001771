@@ -3,10 +3,24 @@ import pytest
 from glaciers import Glacier, GlacierCollection
 
 
-# only created when called by a test fucntion
+# test glacier collection object
+def test_GlacierCollect(file_path = ""):
+    with pytest.raises(TypeError):
+        GlacierCollection(file_path)
+
 @pytest.fixture
 def glaciercol():
     return GlacierCollection(Path("sheet-A.csv"))
+
+
+# test read mass balance data (Positive)
+def test_read_mass_balance_data(glaciercol):
+    glaciercol.read_mass_balance_data(Path("sheet-test.csv"))
+
+    assert glaciercol.glaciers["04532"].mass_balance["2015"]["mass_balance"] == -793
+    assert glaciercol.glaciers["03903"].mass_balance["2015"]["mass_balance"] == - 7778
+    assert glaciercol.glaciers["01048"].mass_balance["2003"]["mass_balance"] == -400
+
 
 @pytest.fixture
 def full_glac_col():
@@ -23,7 +37,8 @@ def full_glac_col():
      (TypeError, "12345", 2, "AG",10,-10, 123 ), (TypeError, "12345", "Glacier2", 2, -10,-10, 123),
      (ValueError, "12345", "Glacier2", "ag", -10, -10, 123), (ValueError, "12345", "Glacier2", "AG", -100, -10, 123),
      (ValueError, "12345", "Glacier2", "ag", -10, 200, 123), (ValueError, "12345", "Glacier2", "ag", -10, -10, 1234),
-     (ValueError, "12345", "Glacier2", "ag", -10, -10, "453")
+     (ValueError, "12345", "Glacier2", "ag", -10, -10, "453"), (TypeError, [1,2,3,4,4], "Glacier2", "AG", -10, 10, 638),
+     (ValueError, "a234", "Glacier2", "AG", -10, 10, 638)
   ])
 def test_glacier(err, glacier_id, name, unit, lat, lon, code):
     with pytest.raises(err):
@@ -42,11 +57,6 @@ def test_add_mass_balace(glaciercol):
 
     assert glaciercol.glaciers["04532"].mass_balance["2020"]["mass_balance"] == 35
     assert glaciercol.glaciers["01346"].mass_balance["2020"]["mass_balance"] == -30
-
-
-# test read_mass_balance
-
-# test find_nearest
 
 # test filter_by_code (Negative tests)
 @pytest.mark.parametrize("err, code_pattern",
@@ -124,7 +134,4 @@ def test_find_nearest_neg(err,lat,lon,n,glaciercol):
 def test_find_nearest_pos(glaciercol):
     assert glaciercol.find_nearest(-30.16490,-69.80940, n=1) == ["AGUA NEGRA"]
 
-# test glacier collection object
-def test_GlacierCollect(file_path = ""):
-    with pytest.raises(TypeError):
-        GlacierCollection(file_path)
+    

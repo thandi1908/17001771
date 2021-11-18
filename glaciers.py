@@ -16,9 +16,13 @@ from warnings import warn
 class Glacier:
     def __init__(self, glacier_id, name, unit, lat, lon, code):
         # validate argument inputs
-        if len(glacier_id) !=5:
+        if not isinstance(glacier_id, str):
+            raise TypeError("Glacier id should be of type str")
+        elif len(glacier_id) !=5:
             id_length = len(glacier_id) 
             raise ValueError("Expected glacier length of 5 but", id_length, "was given")
+        elif not all(char.isdigit for char in glacier_id):
+            raise ValueError("Glacier ID string must only contain digits")
         
        
         if not isinstance(name, str): 
@@ -86,30 +90,12 @@ class Glacier:
             for year in self.mass_balance:
                 x_values.append(int(year))
                 y_values.append(self.mass_balance[year]["mass_balance"])
-        
-            plt.figure()
-            plt.plot(x_values, y_values, '.')
-            plt.ylabel("Mass Balance [mm.w.e]")
-            plt.xlabel("Year")
-            plt.title(str(self.name)+"Mass Balance Measurements Vs Years")
             
-            plt.savefig(output_path)
-
-            assert output_path.is_file()
+            utils.mass_balance_plot(self, x_values, y_values, output_path)
         
         else:
             warn("This Glacier has no mass balance measurements")
-            plt.figure()
-            plt.plot(x_values, y_values, '.')
-            plt.ylabel("Mass Balance [mm.w.e]")
-            plt.xlabel("Year")
-            plt.title(str(self.name)+"Mass Balance Measurements Vs Years")
-
-            full_path = output_path.absolute()
-            str_path = full_path.as_posix()
-            plt.savefig(output_path)
-
-            assert output_path.is_file()
+            utils.mass_balance_plot(self, x_values, y_values, output_path)
 
 
         
@@ -148,11 +134,11 @@ class GlacierCollection:
 
         utils.validate_path(file_path)
 
-        self.count = 0
-
         required_keys = ["WGMS_ID", "LOWER_BOUND", "YEAR", "ANNUAL_BALANCE"]
         # check_csv 
         utils.check_csv(file_path, required_keys)
+
+        self.count = 0
         
         file_path = Path(file_path)
 
@@ -376,8 +362,12 @@ class GlacierCollection:
 
         # plotting
         plt.figure()
-        plt.plot(x_val_1, y_val_1, color = "crimson", label = "Most Shrinkage")
-        plt.plot(x_val_2, y_val_2, color = "lime", label = "Most Growth")
+        plt.plot(x_val_1, y_val_1, '--', color = "crimson", label = "Most Shrinkage", alpha = 0.6)
+        plt.plot(x_val_1, y_val_1, '+', color = "black", alpha = 0.6)
+
+        plt.plot(x_val_2, y_val_2, '--', color = "lime", label = "Most Growth", alpha = 0.6)
+        plt.plot(x_val_2, y_val_2, '+', color = "black", alpha = 0.6)
+
         plt.xlabel("Year")
         plt.ylabel("Mass Balance [mm.w.e]")
         plt.title("Glacier Collection Exteremes Plot")
