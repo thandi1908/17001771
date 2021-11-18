@@ -27,6 +27,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     bracket = sqrt(sine_term_1 + term_2)
 
     return 2*R*asin(bracket)
+    
 
 def check_csv(file_path, required_keys):
 
@@ -51,6 +52,7 @@ def check_csv(file_path, required_keys):
         for column in required_keys:
             if column not in check_columns:
                 raise TypeError("csv missing column ", column)
+
 
 def search_by_code(collection, code_pattern, full_code):
     
@@ -93,6 +95,9 @@ def search_by_code(collection, code_pattern, full_code):
     # return the names of the glaciers with that matching name 
     print("Number of matching glaciers:", len(names))
     return names
+
+
+######################### VALIDATION HELPER FUNCTIONS ##########################
 
 def validate_n(n, max_n): 
     """

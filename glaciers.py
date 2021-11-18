@@ -19,6 +19,7 @@ class Glacier:
         if len(glacier_id) !=5:
             id_length = len(glacier_id) 
             raise ValueError("Expected glacier length of 5 but", id_length, "was given")
+        
        
         if not isinstance(name, str): 
             raise TypeError("Glacier Name should be string")
@@ -54,10 +55,11 @@ class Glacier:
         # validating arguments
         current_year = datetime.datetime.now().year
 
+        assert isinstance(mass_balance, (int, float)), "mass balance should be of type int or float"
+        assert isinstance(subregion, bool), "subregion should be of type bool"
+
         if int(year) > current_year: 
             raise ValueError(str(int)+" is before the current year of "+str(current_year))
-
-        #TODO: validate mass balance measurements
 
         # have we already got data for this year?
         if year in self.mass_balance:
@@ -147,7 +149,7 @@ class GlacierCollection:
         utils.validate_path(file_path)
 
         self.count = 0
-        
+
         required_keys = ["WGMS_ID", "LOWER_BOUND", "YEAR", "ANNUAL_BALANCE"]
         # check_csv 
         utils.check_csv(file_path, required_keys)
