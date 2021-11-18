@@ -9,6 +9,9 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
     Latitude and longitude for each point are given in degrees.
     """
+    assert isinstance(lat1, (float, int)) and isinstance(lat2, (float, int)) , "Latitude should be of type int or float"
+
+    assert isinstance(lon1, (float, int)) and isinstance(lon2, (float, int)) , "Longitude should be of type int or float"
 
     if lat1 < -90 or lat1 > 90: 
         raise ValueError("Latitude should be in range [-90, 90], but", lat1, " was given")
@@ -20,7 +23,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     elif lon2 < -180 or lon2 > 180: 
         raise ValueError("Longitude should be in range [-180, 180] but", lon2, " was given") 
     
-    # need to convert the lats and longs into radians
+    # convert the lats and longs into radians
     lat1, lon1 = radians(lat1), radians(lon1)
 
     lat2, lon2 = radians(lat2), radians(lon2)
@@ -39,14 +42,19 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 def check_csv(file_path, required_keys):
 
     '''
-     DOC STRING 
+    Function for checking that the CSV files are as expected
     '''
+    # validating inputs
+
     if not isinstance(file_path, Path): 
         raise TypeError("output path should be a Path Object")
    
-    # change the path object to string
+    assert isinstance(required_keys, (list, tuple)), "required keys should be a list or tuple"
+    
+    # Check file extension
     full_path = file_path.absolute()
     str_path = full_path.as_posix()
+    
     assert str_path.split(".")[-1] == 'csv', "please input a csv file"
 
     with open(file_path, newline='') as file: 
@@ -58,6 +66,12 @@ def check_csv(file_path, required_keys):
                 raise TypeError("csv missing column ", column)
 
 def search_by_code(collection, code_pattern, full_code):
+    
+    # validating inputs
+    assert isinstance(full_code, bool)
+
+    assert isinstance(code_pattern, (str,int))
+
     # empty list of codes
     names = []
     if full_code:
