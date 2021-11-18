@@ -9,19 +9,8 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
     Latitude and longitude for each point are given in degrees.
     """
-    assert isinstance(lat1, (float, int)) and isinstance(lat2, (float, int)) , "Latitude should be of type int or float"
-
-    assert isinstance(lon1, (float, int)) and isinstance(lon2, (float, int)) , "Longitude should be of type int or float"
-
-    if lat1 < -90 or lat1 > 90: 
-        raise ValueError("Latitude should be in range [-90, 90], but", lat1, " was given")
-    elif lat2< -90 or lat2 > 90: 
-        raise ValueError("Latitude should be in range [-90, 90], but", lat2, " was given")
-
-    if lon1 < -180 or lon1 > 180: 
-        raise ValueError("Longitude should be in range [-180, 180] but", lon1, " was given") 
-    elif lon2 < -180 or lon2 > 180: 
-        raise ValueError("Longitude should be in range [-180, 180] but", lon2, " was given") 
+    validate_lat_lon(lat1, lon1)
+    validate_lat_lon(lat2, lon2)
     
     # convert the lats and longs into radians
     lat1, lon1 = radians(lat1), radians(lon1)
@@ -45,10 +34,8 @@ def check_csv(file_path, required_keys):
     Function for checking that the CSV files are as expected
     '''
     # validating inputs
+    validate_path(file_path)
 
-    if not isinstance(file_path, Path): 
-        raise TypeError("output path should be a Path Object")
-   
     assert isinstance(required_keys, (list, tuple)), "required keys should be a list or tuple"
     
     # Check file extension
@@ -106,3 +93,39 @@ def search_by_code(collection, code_pattern, full_code):
     # return the names of the glaciers with that matching name 
     print("Number of matching glaciers:", len(names))
     return names
+
+def validate_n(n, max_n): 
+    """
+    Function to validate n in Glacier and GlacierCollection methods
+    
+    """
+    if not isinstance(n, int):
+        raise TypeError("n should be an int not ", type(n))
+    if n < 0:
+        raise ValueError("n should be a positive integer")
+
+    if n > max_n:
+        raise ValueError("There are only ", max_n, " glaciers in collection with relevant attributes")
+
+def validate_lat_lon(lat, lon):
+    """
+    Function to validate inputs of latitude and longitude
+    """
+
+    assert isinstance(lat,(int,float)), "Latitude should be of type int"
+
+    assert isinstance(lon, (int,float)), "Longitude should be of type int"
+
+    if lat < -90 or lat > 90: 
+        raise ValueError("Latitude should be in range [-90, 90], but", lat, " was given")
+
+    if lon < -180 or lon > 180: 
+        raise ValueError("Longitude should be in range [-180, 180] but", lon, " was given")
+
+def validate_path(path):
+    """
+    Function to validate paths
+    """
+
+    if not isinstance(path, Path): 
+        raise TypeError("Path should be a Path Object")

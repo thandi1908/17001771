@@ -34,11 +34,8 @@ class Glacier:
             if unit !="99":
                 raise ValueError("Glacier policitcal unit should be a 2 character string of uppercase letters or 99")
         
-        if lat < -90 or lat > 90: 
-            raise ValueError("Latitude should be in range [-90, 90], but", lat, " was given")
+        utils.validate_lat_lon(lat, lon)
 
-        if lon < -180 or lon > 180: 
-            raise ValueError("Longitude should be in range [-180, 180] but", lon, " was given") 
         if len(str(code)) != 3: 
             raise ValueError("Code should be of length 3")
         if not isinstance(code, int): 
@@ -78,8 +75,7 @@ class Glacier:
 
     def plot_mass_balance(self, output_path):
         #validate path
-        if not isinstance(output_path, Path): 
-            raise TypeError("output path should be a Path Object")
+        utils.validate_path(output_path)
 
         x_values = []
         y_values = []
@@ -117,8 +113,8 @@ class Glacier:
         
 class GlacierCollection:
     def __init__(self, file_path):
-        if not isinstance(file_path, Path): 
-            raise TypeError("File path should be a Path Object")
+
+        utils.validate_path(file_path)
 
         self.file_path = file_path
         self.glaciers = {}
@@ -147,11 +143,11 @@ class GlacierCollection:
         
 
     def read_mass_balance_data(self, file_path):
+
+        utils.validate_path(file_path)
+
         self.count = 0
-
-        if not isinstance(file_path, Path): 
-            raise TypeError("output path should be a Path Object")
-
+        
         required_keys = ["WGMS_ID", "LOWER_BOUND", "YEAR", "ANNUAL_BALANCE"]
         # check_csv 
         utils.check_csv(file_path, required_keys)
@@ -189,23 +185,8 @@ class GlacierCollection:
 
     def find_nearest(self, lat, lon, n=5):
         """Get the n glaciers closest to the given coordinates."""
-        if not isinstance(n, int):
-            raise TypeError("n should be an int not ", type(n))
-        if n < 0:
-            raise ValueError("n should be a positive integer")
-
-        if n > len(self.glaciers):
-            raise ValueError("There are only ", len(self.glaciers), "glaciers in collection")
-        
-        assert isinstance(lat,(int,float)), "Latitude should be of type int"
-
-        assert isinstance(lon, (int,float)), "Longitude should be of type int"
-
-        if lat < -90 or lat > 90: 
-            raise ValueError("Latitude should be in range [-90, 90], but", lat, " was given")
-
-        if lon < -180 or lon > 180: 
-            raise ValueError("Longitude should be in range [-180, 180] but", lon, " was given") 
+        utils.validate_n(n, len(self.glaciers))
+        utils.validate_lat_lon(lat,lon)
 
         distance_dict = {} 
 
@@ -274,15 +255,8 @@ class GlacierCollection:
 
     def sort_by_latest_mass_balance(self, n=5, reverse=False):
         """Return the N glaciers with the highest area accumulated in the last measurement."""
-        if n == 0: 
-            return []
-        if not isinstance(n, int): 
-            raise TypeError("n should be of type int")
-        elif n < 0: 
-            raise ValueError("n should be a positive integer")
-        elif n > self.count:
-            raise ValueError(str(n)+" > glaciers with mass balance measurements, max is "+str(self.count))
-        
+        utils.validate_n(n, self.count)
+
         # create glacier dictionary with only latest mass_balance measurement
         smaller_dict = {}
         
@@ -352,18 +326,14 @@ class GlacierCollection:
                 continue
         
         shrink_perc = int(round(100*shrink/glacier_w_measure))
-        # grow_perc = int(round(100*grow/glacier_w_measure))
         print("The earliest measurement was in", earliest_year)
         print(str(shrink_perc)+"% of glaciers shrunk in their last measurement")
-        # print(str(grow_perc)+"% of glaciers grew in their last measurement")
 
 
 
     def plot_extremes(self, output_path):
 
-        if not isinstance(output_path, Path): 
-            raise TypeError("output path should be a Path Object")
-        
+        utils.validate_path(output_path)
         # tracking variables
         most_shrink = sys.maxsize
         shrink_id = None
